@@ -1,6 +1,10 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
+const API_URL = process.env.REACT_APP_API_BASE;
+const response = await axios.post(`${API_URL}/ai/get-review`, { code });
+
+
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash",
