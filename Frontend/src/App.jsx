@@ -27,18 +27,21 @@ function App() {
   //   setReview(response.data);
   // }
   async function reviewCode() {
-    setLoading(true); // Start loading
+    setLoading(true);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE;
+
     try {
-      const response = await axios.post("http://localhost:3000/ai/get-review", {
+      const response = await axios.post(`${API_BASE_URL}/ai/get-review`, {
         code,
       });
       setReview(response.data);
     } catch (error) {
       setReview("❌ Error while fetching review.");
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   }
+
 
   return (
     <>
