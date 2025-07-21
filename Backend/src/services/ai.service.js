@@ -1,15 +1,13 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-require("dotenv").config();
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import "dotenv/config.js";
 
-const API_URL = process.env.REACT_APP_API_BASE;
-const response = await axios.post(`${API_URL}/ai/get-review`, { code });
-
+// ✅ Move axios call inside a function (top-level await not allowed otherwise)
+const API_BASE_URL = process.env.REACT_APP_API_BASE;
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash",
-  systemInstruction: `
-                Here’s a solid system instruction for your AI code reviewer:
+  systemInstruction: `Here’s a solid system instruction for your AI code reviewer:
 
                 AI System Instruction: Senior Code Reviewer (7+ Years of Experience)
 
@@ -80,15 +78,17 @@ const model = genAI.getGenerativeModel({
 
                 Your mission is to ensure every piece of code follows high standards. Your reviews should empower developers to write better, more efficient, and scalable code while keeping performance, security, and maintainability in mind.
 
-                Would you like any adjustments based on your specific needs? 🚀 
-    `,
+                Would you like any adjustments based on your specific needs? 🚀`, // you can keep the full text, it's fine.
 });
-async function generateContent(prompt) {
-  const result = await model.generateContent(prompt);
 
-  console.log(result.response.text());
-
-  return result.response.text();
+async function generateContent(code) {
+  try {
+    const response = await model.generateContent(code);
+    return response.response.text();
+  } catch (error) {
+    console.error("AI generation error:", error.message);
+    return "❌ Error during AI generation.";
+  }
 }
 
-module.exports = generateContent;
+export default generateContent;

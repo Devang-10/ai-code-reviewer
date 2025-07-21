@@ -1,19 +1,17 @@
-const express = require("express");
-const aiRoutes = require("./routes/ai.routes");
-const cors = require("cors");
-require("dotenv").config();
-
+import express from "express";
+import aiRoutes from "./routes/ai.routes.js";
+import cors from "cors";
+import "dotenv/config.js";
 
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send();
+  res.send("AI Code Reviewer API Running ✅");
 });
 
 app.use("/ai", aiRoutes);
 
-module.exports = app;
+export default app;
