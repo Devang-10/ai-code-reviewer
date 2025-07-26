@@ -22,7 +22,7 @@ function App() {
 
   async function reviewCode() {
     setLoading(true);
-    const API_BASE_URL = import.meta.env.VITE_API_URL; 
+    const API_BASE_URL = import.meta.env.VITE_API_URL;
     try {
       const response = await axios.post(`${API_BASE_URL}/ai/get-review`, {
         code,
@@ -34,7 +34,6 @@ function App() {
       setLoading(false);
     }
   }
-
 
   return (
     <>
@@ -84,7 +83,7 @@ function App() {
               <span className="spinner"></span>Loading...
             </span>
           ) : (
-            "Review"
+            ""
           )}
         </div>
 
