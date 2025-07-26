@@ -20,16 +20,9 @@ function App() {
     prism.highlightAll();
   }, []);
 
-  // async function reviewCode() {
-  //   const response = await axios.post("http://localhost:3000/ai/get-review", {
-  //     code,
-  //   });
-  //   setReview(response.data);
-  // }
   async function reviewCode() {
     setLoading(true);
-    const API_BASE_URL = process.env.REACT_APP_API_BASE;
-
+    const API_BASE_URL = import.meta.env.VITE_API_URL; 
     try {
       const response = await axios.post(`${API_BASE_URL}/ai/get-review`, {
         code,
@@ -91,7 +84,7 @@ function App() {
               <span className="spinner"></span>Loading...
             </span>
           ) : (
-            ""
+            "Review"
           )}
         </div>
 
