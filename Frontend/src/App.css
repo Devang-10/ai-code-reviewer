@@ -1,91 +1,213 @@
-* {
-  margin: 0%;
-  padding: 0%;
-  box-sizing: border-box;
+/* === New Section: Scrollbar Styling === */
+/* Works on Chrome, Edge, and Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-html,
-body,
-#root {
-  height: 100%;
-  width: 100%;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-main {
-  height: 100%;
+::-webkit-scrollbar-thumb {
+  background-color: rgba(147, 51, 234, 0.4);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(147, 51, 234, 0.7);
+}
+
+/* === KEYFRAME ANIMATIONS === */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === GENERAL STYLES === */
+.app-container {
   width: 100%;
-  padding: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* === HEADER === */
+.app-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  animation: fadeInSlideUp 0.5s ease-out forwards;
+}
+
+.app-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  background: -webkit-linear-gradient(45deg, #a855f7, #e879f9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-header p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.5rem;
+}
+
+/* === MAIN CONTENT LAYOUT === */
+.main-content {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
 }
 
-main .left,
-main .right {
-  height: 100%;
-  flex-basis: 50%;
-  border-radius: 0.7rem;
-}
-
-main .left {
-  background-color: #000000;
-  position: relative;
-  overflow: auto;
-}
-
-.left .code,
-.code pre,
-.code pre code {
-  height: 100%;
+/* === PANELS (Editor & Review) === */
+.panel {
   width: 100%;
-  overflow: auto;
-  border-radius: 0.7rem;
-  background-color: #0c0c0c;
-  padding: 1rem;
+  background-color: var(--color-panel-bg);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.code-scroll-wrapper {
-  height: 91%;
-  overflow: auto;            /* enables scrolling */
-  border-radius: 0.7rem;
-  background-color: #0c0c0c;
-  padding: 1rem;
+.editor-container {
+  animation: fadeInSlideUp 0.5s 0.2s ease-out forwards;
+  opacity: 0;
 }
 
-.code {
-  min-height: 100%;          /* let code expand naturally */
+.review-container {
+  animation: fadeInSlideUp 0.5s ease-out forwards;
 }
 
+.panel:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px var(--color-border);
+}
 
-main .left .review {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  background-color: rgb(219, 219, 255);
-  color: #000000;
-  padding: 0.5rem 2rem;
+/* Updated: Panel Header for Glassmorphism Effect */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: rgba(22, 22, 28, 0.5); /* Semi-transparent bg */
+  backdrop-filter: blur(10px); /* The frosted glass effect */
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.9rem;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* === CODE EDITOR === */
+.code-editor {
+  min-height: 300px;
+  max-height: 50vh;
+  overflow-y: auto !important;
+}
+
+/* === New Section: Copy Button === */
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.copy-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.copy-btn:active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* === REVIEW PANEL === */
+.review-content {
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+}
+
+.review-content code {
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: var(--font-code);
+}
+
+/* New: Styling for blockquotes in Markdown */
+.review-content blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid var(--color-primary-violet);
+  background-color: rgba(147, 51, 234, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 0 4px 4px 0;
+}
+
+/* === REVIEW BUTTON === */
+.review-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background-image: linear-gradient(to right, var(--color-primary-violet), #c026d3, #9333ea);
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   user-select: none;
-  border-radius: 0.7rem;
+  transition: all 0.4s ease-in-out;
+  box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+  
+  animation: fadeInSlideUp 0.5s 0.4s ease-out forwards;
+  opacity: 0;
+  background-size: 200% auto;
 }
 
-main .right {
-  background-color: #343434;
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  overflow: auto;
+.review-btn:hover:not(:disabled) {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
 }
 
+.review-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.review-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* === SPINNER & LOADERS === */
 .spinner {
-  border: 4px solid #ccc;
-  border-top: 4px solid #6666ff;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid #ffffff;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   animation: spin 0.8s linear infinite;
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 8px;
 }
 
 @keyframes spin {
@@ -93,4 +215,23 @@ main .right {
   100% { transform: rotate(360deg); }
 }
 
+.skeleton-loader {
+  padding: 1rem 0;
+}
+.skeleton-line {
+  height: 1em;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+.skeleton-line.short {
+  width: 60%;
+}
 
+@keyframes pulse {
+  0% { background-color: rgba(255, 255, 255, 0.1); }
+  50% { background-color: rgba(255, 255, 255, 0.15); }
+  100% { background-color: rgba(255, 255, 255, 0.1); }
+}

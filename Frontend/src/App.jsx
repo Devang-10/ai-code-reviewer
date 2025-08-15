@@ -1,27 +1,39 @@
-import { useState, useEffect } from "react";
-import "prismjs/themes/prism-tomorrow.css";
+import { useState } from "react";
 import Editor from "react-simple-code-editor";
-import prism from "prismjs";
 import Markdown from "react-markdown";
 import hljs from "highlight.js";
 import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github-dark.css";
 import axios from "axios";
+
+// Import styles
+import "highlight.js/styles/github-dark.css";
 import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [code, setCode] = useState(``);
+// Import icons: Clipboard for copy, Check for success
+import { Sparkles, Clipboard, Check } from "lucide-react";
 
+function App() {
+  const [code, setCode] = useState(
+    `// Paste your code here to get an AI review`
+  );
   const [review, setReview] = useState(``);
   const [loading, setLoading] = useState(false);
+  const [isCopied, setIsCopied] = useState(false); // New state for copy button
 
-  useEffect(() => {
-    prism.highlightAll();
-  }, []);
+  // New function to handle copying code
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+  };
 
   async function reviewCode() {
+    if (!code.trim()) {
+      setReview("Please enter some code to review.");
+      return;
+    }
     setLoading(true);
+    setReview("");
     const API_BASE_URL = import.meta.env.VITE_API_URL;
     try {
       const response = await axios.post(`${API_BASE_URL}/ai/get-review`, {
@@ -29,80 +41,84 @@ function App() {
       });
       setReview(response.data);
     } catch (error) {
-      setReview("❌ Error while fetching review.");
+      setReview("❌ Error while fetching review. Please try again later.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <>
-      <main>
-        <div className="left">
-          <div
-            className="header"
+    <div className="app-container">
+      <header className="app-header">
+        <h1>AI Code Reviewer</h1>
+        <p>
+          Get instant feedback on your code quality, style, and performance.
+        </p>
+      </header>
+
+      <main className="main-content">
+        <div className="panel editor-container">
+          <div className="panel-header">
+            <h3>Your Code</h3>
+            {/* New Copy Button */}
+            <button onClick={handleCopy} className="copy-btn" title="Copy code">
+              {isCopied ? (
+                <>
+                  <Check size={16} /> Copied!
+                </>
+              ) : (
+                <Clipboard size={16} />
+              )}
+            </button>
+          </div>
+          <Editor
+            value={code}
+            onValueChange={(code) => setCode(code)}
+            highlight={(code) => hljs.highlightAuto(code).value}
+            padding={16}
+            className="code-editor"
             style={{
-              backgroundColor: "#0c0c0c",
-              textAlign: "center",
-              fontSize: "1.2rem",
-              padding: "1rem",
+              fontFamily: '"Fira Code", "Fira Mono", monospace',
+              fontSize: 16,
+              outline: 0,
             }}
-          >
-            <i>Your code goes here </i>
-          </div>
-          {
-            <div className="code-scroll-wrapper">
-              <div className="code">
-                <Editor
-                  value={code}
-                  onValueChange={(code) => setCode(code)}
-                  highlight={(code) => {
-                    const result = hljs.highlightAuto(code);
-                    return result.value;
-                  }}
-                  padding={10}
-                  style={{
-                    fontFamily: '"Fira code", "Fira Mono", monospace',
-                    fontSize: 18,
-                    minHeight: "100%",
-                    width: "100%",
-                    whiteSpace: "pre-wrap",
-                    overflowWrap: "break-word",
-                  }}
-                />
-              </div>
-            </div>
-          }
-          <div onClick={reviewCode} className="review">
-            Review
-          </div>
-        </div>
-        <div onClick={!loading ? reviewCode : undefined} className="review">
-          {loading ? (
-            <span>
-              <span className="spinner"></span>Loading...
-            </span>
-          ) : (
-            ""
-          )}
+          />
         </div>
 
-        <div className="right">
-          <div
-            className="header"
-            style={{
-              backgroundColor: "#343434",
-              textAlign: "center",
-              fontSize: "1.2rem",
-              padding: "0.2rem",
-            }}
-          >
-            <i>AI Review</i>
+        <button onClick={reviewCode} className="review-btn" disabled={loading}>
+          {loading ? (
+            <>
+              <span className="spinner"></span>
+              <span>Reviewing...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={20} />
+              <span>Analyze Code</span>
+            </>
+          )}
+        </button>
+
+        {(review || loading) && (
+          <div className="panel review-container">
+            <div className="panel-header">
+              <h3>AI Review</h3>
+            </div>
+            <div className="review-content">
+              {loading && !review ? (
+                <div className="skeleton-loader">
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line short"></div>
+                </div>
+              ) : (
+                <Markdown rehypePlugins={[rehypeHighlight]}>{review}</Markdown>
+              )}
+            </div>
           </div>
-          <Markdown rehypePlugins={[rehypeHighlight]}>{review}</Markdown>
-        </div>
+        )}
       </main>
-    </>
+    </div>
   );
 }
 
