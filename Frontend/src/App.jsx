@@ -1,58 +1,47 @@
 import { useState } from "react";
 import Editor from "react-simple-code-editor";
+import Markdown from "react-markdown";
 import hljs from "highlight.js";
+import rehypeHighlight from "rehype-highlight";
 import axios from "axios";
+
+// Import styles
 import "highlight.js/styles/github-dark.css";
 import "./App.css";
 
-// Icons for the UI
-import { Sparkles, Clipboard, Check, AlertTriangle, XCircle, Info, Wand2 } from "lucide-react";
-
-// A component to render severity icons
-const SeverityIcon = ({ severity }) => {
-  if (severity === "critical") return <XCircle className="issue-icon critical" size={20} />;
-  if (severity === "warning") return <AlertTriangle className="issue-icon warning" size={20} />;
-  return <Info className="issue-icon info" size={20} />;
-};
+// Import icons: Clipboard for copy, Check for success
+import { Sparkles, Clipboard, Check } from "lucide-react";
 
 function App() {
-  const [code, setCode] = useState(`// Paste your code here to get an AI review`);
-  const [review, setReview] = useState(null);
+  const [code, setCode] = useState(
+    `// Paste your code here to get an AI review`
+  );
+  const [review, setReview] = useState(``);
   const [loading, setLoading] = useState(false);
-  
-  // Renamed state for clarity and added one for the refactored code
-  const [isInputCopied, setIsInputCopied] = useState(false);
-  const [isRefactoredCopied, setIsRefactoredCopied] = useState(false);
+  const [isCopied, setIsCopied] = useState(false); // New state for copy button
 
-  // Modified handler to copy different texts and manage separate states
-  const handleCopy = (textToCopy, type) => {
-    navigator.clipboard.writeText(textToCopy);
-    if (type === 'input') {
-      setIsInputCopied(true);
-      setTimeout(() => setIsInputCopied(false), 2000);
-    } else {
-      setIsRefactoredCopied(true);
-      setTimeout(() => setIsRefactoredCopied(false), 2000);
-    }
+  // New function to handle copying code
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
   };
 
   async function reviewCode() {
     if (!code.trim()) {
-      setReview({ summary: "Please enter some code to review.", issues: [], refactoredCode: "" });
+      setReview("Please enter some code to review.");
       return;
     }
     setLoading(true);
-    setReview(null);
+    setReview("");
     const API_BASE_URL = import.meta.env.VITE_API_URL;
     try {
-      const response = await axios.post(`${API_BASE_URL}/ai/get-review`, { code });
+      const response = await axios.post(`${API_BASE_URL}/ai/get-review`, {
+        code,
+      });
       setReview(response.data);
     } catch (error) {
-      setReview({
-        summary: "Error while fetching review. Please try again later.",
-        issues: [{ severity: 'critical', title: 'API Error', description: 'Could not connect to the review service.' }],
-        refactoredCode: ""
-      });
+      setReview("❌ Error while fetching review. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -62,15 +51,24 @@ function App() {
     <div className="app-container">
       <header className="app-header">
         <h1>AI Code Reviewer</h1>
-        <p>Get instant feedback on your code quality, style, and performance.</p>
+        <p>
+          Get instant feedback on your code quality, style, and performance.
+        </p>
       </header>
 
       <main className="main-content">
         <div className="panel editor-container">
           <div className="panel-header">
             <h3>Your Code</h3>
-            <button onClick={() => handleCopy(code, 'input')} className="copy-btn" title="Copy code">
-              {isInputCopied ? <><Check size={16} /> Copied!</> : <Clipboard size={16} />}
+            {/* New Copy Button */}
+            <button onClick={handleCopy} className="copy-btn" title="Copy code">
+              {isCopied ? (
+                <>
+                  <Check size={16} /> Copied!
+                </>
+              ) : (
+                <Clipboard size={16} />
+              )}
             </button>
           </div>
           <Editor
@@ -79,61 +77,44 @@ function App() {
             highlight={(code) => hljs.highlightAuto(code).value}
             padding={16}
             className="code-editor"
-            style={{ fontFamily: '"Fira Code", "Fira Mono", monospace', fontSize: 16, outline: 0 }}
+            style={{
+              fontFamily: '"Fira Code", "Fira Mono", monospace',
+              fontSize: 16,
+              outline: 0,
+            }}
           />
         </div>
 
         <button onClick={reviewCode} className="review-btn" disabled={loading}>
-          {loading ? <><span className="spinner"></span><span>Reviewing...</span></> : <><Sparkles size={20} /><span>Analyze Code</span></>}
+          {loading ? (
+            <>
+              <span className="spinner"></span>
+              <span>Reviewing...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={20} />
+              <span>Analyze Code</span>
+            </>
+          )}
         </button>
 
-        {loading && (
-          <div className="panel skeleton-panel">
-            <div className="skeleton-line large"></div>
-            <div className="skeleton-line"></div>
-            <div className="skeleton-line medium"></div>
-          </div>
-        )}
-
-        {review && !loading && (
-          <div className="review-results">
-            {review.summary && <div className="review-summary"><Info size={20} /> <p>{review.summary}</p></div>}
-            
-            {review.issues && review.issues.length > 0 && (
-              <div className="issues-section">
-                <h3>Identified Issues</h3>
-                {review.issues.map((issue, index) => (
-                  <div key={index} className={`issue-card ${issue.severity}`}>
-                    <SeverityIcon severity={issue.severity} />
-                    <div className="issue-details">
-                      <h4 className="issue-title">{issue.title}</h4>
-                      <p className="issue-description">{issue.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {review.refactoredCode && (
-              <div className="panel refactored-code-container">
-                <div className="panel-header">
-                  <h3><Wand2 size={16} style={{marginRight: '8px'}}/> Recommended Fix</h3>
-                  {/* The new copy button for the recommended fix */}
-                  <button onClick={() => handleCopy(review.refactoredCode, 'refactored')} className="copy-btn" title="Copy refactored code">
-                    {isRefactoredCopied ? <><Check size={16} /> Copied!</> : <Clipboard size={16} />}
-                  </button>
+        {(review || loading) && (
+          <div className="panel review-container">
+            <div className="panel-header">
+              <h3>AI Review</h3>
+            </div>
+            <div className="review-content">
+              {loading && !review ? (
+                <div className="skeleton-loader">
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line short"></div>
                 </div>
-                <Editor
-                  value={review.refactoredCode}
-                  onValueChange={() => {}}
-                  highlight={(code) => hljs.highlightAuto(code).value}
-                  padding={16}
-                  readOnly
-                  className="code-editor"
-                  style={{ fontFamily: '"Fira Code", "Fira Mono", monospace', fontSize: 16 }}
-                />
-              </div>
-            )}
+              ) : (
+                <Markdown rehypePlugins={[rehypeHighlight]}>{review}</Markdown>
+              )}
+            </div>
           </div>
         )}
       </main>
