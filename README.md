@@ -2,6 +2,8 @@
 
 A full-stack web application that allows users to write or paste code in any programming language and receive a detailed AI-generated review using the Gemini API. Built with React, Node.js, and Express, it supports syntax highlighting, language auto-detection, and interactive UI for developers to get instant feedback on their code.
 
+## Live Demo - https://ai-code-reviewer-1-tudw.onrender.com/
+
 ## 🛠️ Features
 
 ✅ AI-based code review using Gemini API  
